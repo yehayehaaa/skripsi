@@ -25,14 +25,15 @@ void tampilOLED(String X, String Y)
 void timedTampilOLED(String X, String Y, long durationOLED) {
   display.clearDisplay();
   unsigned long currentMillis = millis();
-  
+
   if (currentMillis - prevMillisOLED >= durationOLED) {
 
     tampilOLED(X, Y);
-    
+
     prevMillisOLED = currentMillis;
+  } else {
+    display.clearDisplay();
   }
-  display.clearDisplay();
 }
 
 void setupOLED() {
@@ -45,6 +46,6 @@ void setupOLED() {
   // the library initializes this with an Adafruit splash screen.
   display.display();
   delay(10); // Pause for 10 m-seconds
-  
+
   timedTampilOLED("Hover Board", "UM", 2000);
 }
