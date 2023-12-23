@@ -48,3 +48,35 @@ int cekBaterai() {
 
   return persenBaterai;
 }
+
+bool awalBateraiAman() {
+  if (cekBaterai() > 95) {
+    return true;
+  }
+  return false;
+}
+
+/*
+int cekBaterai() {
+  if (persenBaterai() > 20){
+    return 3;
+  }
+  if (persenBaterai() <= 20 && persenBaterai() > 15) {
+    return 2;
+    
+    //timedTampilOLED("BATERAI LEMAH!", "Segera Kembalikan HoverBoard di Stasiun Terdekat.", 5000);
+    //buzzer nyala nitnit nitnit nitnit
+    //kirim alarm baterai lemah ke TB
+  }
+  else if (persenBaterai() <= 15 && persenBaterai() > 10) {
+    return 1;
+    //matikan relay
+    //buzzer bunyi nitttttt selama 1 detik secara berkala
+    //kirim alarm alat mati
+    //increment variable alatMati
+  } else {
+    return 0;
+    //matikan buzzer
+  }
+}
+*/
