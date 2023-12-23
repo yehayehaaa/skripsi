@@ -5,51 +5,65 @@
 #define RST_PIN 14 // Pin RST dari modul RFID RC522
 MFRC522 mfrc522(SS_PIN, RST_PIN); // Buat objek MFRC522
 
-String dataPengguna[] = {"123456", "234567", "345678", "456789", "567890"}; // Data pegawai yang diinputkan secara manual
-String namaPengguna[] = {"Rizki Chandra", "Muhammad Andhika", "Dimas Derajat", "Admin HB UM 1", "Admin HB UM 2"};
-String rfidData;
-int nomorPengguna;
-bool statHB = false;
+String dataPegawai[5] = {"1623118332", "17814010732", "992324245", "11513421945", "991459545"}; // Data pegawai yang diinputkan secara manual
+String listPengguna[5] = {"Rafli Amirul", "Thoriq Ekananda", "Ruhil Bilqis", "Ayaturahman", "Rizki Chandra"};
+bool statHB;
+#define LED_BUILTIN 2
+int noPengguna, j;
 
-void setupRFID() {
+void setup() {
+  Serial.begin(115200);
   SPI.begin(); // Mulai komunikasi SPI
   mfrc522.PCD_Init(); // Inisialisasi modul RFID
+  pinMode(LED_BUILTIN, OUTPUT);
+  statHB = false;
+  //  noPengguna = 99;
 }
 
-int cekID() {
+void loop() {
   // Periksa apakah ada kartu RFID yang terdeteksi
   if (mfrc522.PICC_IsNewCardPresent() && mfrc522.PICC_ReadCardSerial()) {
-    rfidData = ""; // Simpan data RFID
+    String rfidData = ""; // Simpan data RFID
+    String Pengguna = "";
 
     // Baca data RFID
     for (byte i = 0; i < mfrc522.uid.size; i++) {
-      rfidData += (mfrc522.uid.uidByte[i]);
+      rfidData += String(mfrc522.uid.uidByte[i] );
     }
 
-    for (int i = 0; i < (sizeof(dataPengguna) / sizeof(dataPengguna[0])); i++) {
-      if (statHB == false) {
-        if (rfidData == dataPengguna[i]) {
-          statHB = true;
-          nomorPengguna = i;
-          return 1; // Kesesuaian ditemukan
-        } else {
-          return 2; //gada yg cocok
-        }
+    // Periksa kesesuaian dengan data pegawai
+    if (statHB == false) {
+      if (checkAttendance(rfidData)) {
+        statHB = true;
+        noPengguna = j;
+        Pengguna = listPengguna[noPengguna];
+        digitalWrite(LED_BUILTIN, HIGH);
+        Serial.print("Hai ");
+        Serial.println(Pengguna);
+      } else {
+        Serial.println("Kartu tidak terdaftar.");
       }
-      else {
-        if (rfidData == dataPengguna[nomorPengguna]) {
-          //relay off
-          statHB = false;
-          nomorPengguna = -1;
-          return 3; // 2 kali tap id yang sama
-        } else {
-          Serial.println("HB dalam penggunaan ID lain");
-          return 4; // tap pada sedang penggunaan
-        }
+    } else {
+      if (checkAttendance(rfidData) && noPengguna == j) {
+        Serial.print("Terima kasih");
+        Serial.println(Pengguna); 
+        statHB = false;
+        digitalWrite(LED_BUILTIN, LOW);      
+      } else {
+        Serial.println("Alat Dalam Penggunaan");
       }
-      return 0; // Kesesuaian tidak ditemukan
+    }
+    mfrc522.PICC_HaltA(); // Hentikan komunikasi dengan kartu
+  }
+}
 
-      mfrc522.PICC_HaltA(); // Hentikan komunikasi dengan kartu
+// Fungsi untuk memeriksa kesesuaian data RFID dengan data pegawai
+bool checkAttendance(String rfid) {
+  for (int i = 0; i < sizeof(dataPegawai) / sizeof(dataPegawai[0]); i++) {
+    if (rfid == dataPegawai[i]) {
+      j = i;
+      return true; // Kesesuaian ditemukan
     }
   }
+  return false; // Kesesuaian tidak ditemukan
 }
